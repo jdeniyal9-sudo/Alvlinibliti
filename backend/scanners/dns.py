@@ -1,17 +1,24 @@
 import dns.resolver
 
-def get_dns(domain):
+def scan_dns(domain):
+    result = {}
 
-    records = {}
+    try:
+        a_records = dns.resolver.resolve(domain, 'A')
+        result["A"] = [str(r) for r in a_records]
+    except:
+        result["A"] = []
 
-    for record_type in ['A', 'MX', 'NS']:
+    try:
+        mx_records = dns.resolver.resolve(domain, 'MX')
+        result["MX"] = [str(r.exchange) for r in mx_records]
+    except:
+        result["MX"] = []
 
-        try:
-            answers = dns.resolver.resolve(domain, record_type)
+    try:
+        ns_records = dns.resolver.resolve(domain, 'NS')
+        result["NS"] = [str(r) for r in ns_records]
+    except:
+        result["NS"] = []
 
-            records[record_type] = [str(r) for r in answers]
-
-        except Exception as e:
-            records[record_type] = str(e)
-
-    return records
+    return result
